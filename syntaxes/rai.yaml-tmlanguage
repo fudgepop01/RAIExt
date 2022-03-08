@@ -1,0 +1,57 @@
+name: rai
+scopeName: source.rai
+fileTypes:
+  - rai
+  - raid
+patterns:
+  - include: '#keywords'
+  - include: '#numbers'
+  - include: '#functions'
+  - include: '#variables'
+  - include: '#comments'
+  - include: '#strings'
+repository:
+  numbers:
+    patterns:
+      - match: '(\b0x[0-9a-fA-F]+|\b\d+)'
+        name: constant.numeric
+  keywords:
+    patterns:
+      - match: 'fn|let|global|glob|script|cmd'
+        name: keyword.other
+      - match: '\b(?:if|else)\b|loop|collapse|return|break|else if|^#__FILE__ .+$|^#extends .+|^#out .+|#define|#calc'
+        name: keyword.control
+      - match: '(@|&)([a-zA-Z_]+[a-zA-Z0-9_]*)'
+        name: support.type
+  functions:
+    patterns:
+      - match: '([a-zA-Z_]+[a-zA-Z0-9_]*)\('
+        captures:
+          '1': { name: entity.name.function }
+  variables:
+    patterns:
+      - match: '[a-zA-Z_]+[a-zA-Z0-9_]*'
+        name: variable.other
+  strings:
+    patterns:
+      - begin: '"'
+        beginCaptures:
+          '0': { name: punctuation.definition.string.begin.ts }
+        end: '(")|((?:[^\\\n])$)'
+        endCaptures:
+          '1': { name: punctuation.definition.string.end.ts }
+          '2': { name: invalid.illegal.newline.ts }
+        name: string.quoted.double.ts
+  comments:
+    patterns:
+      - match: '((?://).*$)'
+        name: comment
+      - begin: '(\/\*)'
+        beginCaptures:
+          '1': { name: punctuation.definition.comment }
+        end: '(\*\/)'
+        endCaptures:
+          '1': { name: punctuation.definition.comment }
+        name: comment.block
+
+

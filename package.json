@@ -1,0 +1,89 @@
+{
+  "name": "RAIExt",
+  "displayName": "RAIExt",
+  "description": "used for development of RAI",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.62.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:rai"
+  ],
+  "main": "./out/extension.js",
+  "capabilities": {
+    "definitionProvider": true
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "rai",
+        "aliases": [
+          "Rivals AI"
+        ],
+        "extensions": [
+          ".rai",
+          ".raid"
+        ],
+        "configuration": "./syntaxes/rai-configuration.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "rai.compile",
+        "title": "%rai.compile.title%",
+        "category": "rai"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "rai",
+        "scopeName": "source.rai",
+        "path": "./syntaxes/rai.tmLanguage"
+      }
+    ],
+    "configuration": {
+      "title": "RAI Ext Options",
+      "properties": {
+        "rai.builtinpath": {
+          "type": "string",
+          "default": "",
+          "description": "the path to the RAI include file"
+        },
+        "rai.characterDir": {
+          "type": "string",
+          "default": "",
+          "description": "the path to the character directory (the root of AI file exports)"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.4",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "14.x",
+    "@types/vscode": "^1.62.0",
+    "@typescript-eslint/eslint-plugin": "^5.1.0",
+    "@typescript-eslint/parser": "^5.1.0",
+    "@vscode/test-electron": "^1.6.2",
+    "eslint": "^8.1.0",
+    "glob": "^7.1.7",
+    "mocha": "^9.1.3",
+    "typescript": "^4.4.4"
+  },
+  "dependencies": {
+    "chevrotain": "^10.0.0",
+    "construct-js": "^1.0.1",
+    "ieee754": "^1.2.1"
+  }
+}
