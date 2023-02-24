@@ -27,6 +27,7 @@ export type IVariable = {
 
 export interface IVarInitInfo {
   variable: IVariable;
+  initializeOnly: boolean
   expression?: IExpression;
 }
 

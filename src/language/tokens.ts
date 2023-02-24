@@ -59,7 +59,6 @@ export const RSquare = createToken({name: 'RSquare', pattern: /]/});
 export const LParen = createToken({name: 'LParen', pattern: /\(/});
 export const RParen = createToken({name: 'RParen', pattern: /\)/});
 export const Comma = createToken({name: 'Comma', pattern: /,/});
-export const Colon = createToken({name: 'Colon', pattern: /:/});
 export const SemiColon = createToken({name: 'SemiColon', pattern: /;/});
 
 export const AdditionOperator = createToken({name: 'AdditionOperator', pattern: Lexer.NA})
@@ -94,6 +93,8 @@ export const BitAND = createToken({name: 'BitAND', pattern: /&/})
 export const BitXOR = createToken({name: 'BitXOR', pattern: /\^/})
 export const BitOR = createToken({name: 'BitOR', pattern: /\|/})
 
+export const Initialize = createToken({name: 'Initialize', pattern: /:=/});
+export const Colon = createToken({name: 'Colon', pattern: /:/});
 export const Equals = createToken({name: 'Equals', pattern: /=/});
 
 export const RivalsAILexer = new Lexer(tokens);

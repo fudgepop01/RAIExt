@@ -1,7 +1,7 @@
 
 import { createToken, Lexer, CstParser, RepetitionWithSeparator } from "chevrotain";
 import type { IParserConfig, CstNode } from "chevrotain";
-import { tokens, Fn, Identifier, LParen, RParen, Num, Str, Comma, Script, LCurly, RCurly, RivalsAILexer, Let, Equals, Return, MultiplicationOperator, AdditionOperator, IF, ELIF, ELSE, NOT, RelationalOperator, EquivalenceOperator, AND, OR, PlusPlus, MinusMinus, Define, Calculate, BitshiftOperator, BitAND, BitXOR, BitOR, VarReference, HexNum, BitShiftR, Collapse, Global, FILEDEF, OUT, EXTENDS, FromTarget, LOOP, BREAK } from './tokens';
+import { tokens, Fn, Identifier, LParen, RParen, Num, Str, Comma, Script, LCurly, RCurly, RivalsAILexer, Let, Equals, Return, MultiplicationOperator, AdditionOperator, IF, ELIF, ELSE, NOT, RelationalOperator, EquivalenceOperator, AND, OR, PlusPlus, MinusMinus, Define, Calculate, BitshiftOperator, BitAND, BitXOR, BitOR, VarReference, HexNum, BitShiftR, Collapse, Global, FILEDEF, OUT, EXTENDS, FromTarget, LOOP, BREAK, Initialize } from './tokens';
 import { IScript, ICommand, IVariable, IFuncCall, IFuncDef, IScope, ILocation, IIdentifier, IStr, IRawValue, PassedArg } from './definitions';
 import * as vscode from 'vscode';
 
@@ -227,8 +227,13 @@ export class RivalsAIParser extends CstParser {
     $.RULE("varDefine", () => {
       $.CONSUME(Let);
       $.CONSUME(Identifier);
-      $.CONSUME(Equals);
-      $.SUBRULE($["expression"])
+      $.OPTION(() => {
+        $.OR([
+          { ALT: () => $.CONSUME(Initialize, {LABEL: "initializer"}) },
+          { ALT: () => $.CONSUME(Equals) }
+        ])
+        $.SUBRULE($["expression"])
+      })
     })
 
     $.RULE("globDefine", () => {

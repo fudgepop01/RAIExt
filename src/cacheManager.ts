@@ -58,6 +58,10 @@ export class CacheManager implements vscode.Disposable, vscode.CompletionItemPro
       )
     );
 
+    // if (vscode.window.activeTextEditor?.document.uri.toString() == out.uri.toString()) {
+    //   vscode.window.activeTextEditor.revealRange(out.range, vscode.TextEditorRevealType.InCenter);
+    // }
+
     return out;
   }
 
@@ -69,6 +73,8 @@ export class CacheManager implements vscode.Disposable, vscode.CompletionItemPro
     for (const item of items) {
       out.push({
         label: item.name,
+        detail: item.idKind,
+        filterText: item.idKind + "_" + item.name,
         kind: (() => {
           switch(item.idKind) {
             default: return undefined;
@@ -149,6 +155,7 @@ export class CacheManager implements vscode.Disposable, vscode.CompletionItemPro
     } else {
       this.diagnosticsCollection.clear();
       try {
+        this.visitorInstance!.completionItems = []
         this.visitorInstance!.visit(cstNode, text);
         this.completionItems = this.visitorInstance!.completionItems;
       } catch (e: any) {
@@ -244,6 +251,7 @@ export class CacheManager implements vscode.Disposable, vscode.CompletionItemPro
     }
     if (this.visitorInstance) {
       this.visitorInstance.fns.length = 0;
+      this.visitorInstance.globals.length = 0;
       this.visitorInstance.defines.length = 0;
       this.visitorInstance.scripts.length = 0;
       this.visitorInstance.mainScript = undefined;

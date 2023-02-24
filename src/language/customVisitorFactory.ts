@@ -145,6 +145,8 @@ export const customVisitorFactory = (parser: RivalsAIParser, builtins: IBuiltins
       this.validateVisitor();
     }
 
+
+
     processBody(item: IFuncDef | IScript) {
       item.scope = this.visit(item.scopeCtx!, item);
     }
@@ -697,9 +699,9 @@ export const customVisitorFactory = (parser: RivalsAIParser, builtins: IBuiltins
             endColumn: varNameInfo.endColumn
           },
           idKind: "variable",
-
         },
-        expression
+        expression,
+        initializeOnly: (!!ctx["initializer"] && expression)
       };
     }
     varSet(ctx: CstNode, parent: IScope): ICommand {
@@ -929,14 +931,19 @@ export const customVisitorFactory = (parser: RivalsAIParser, builtins: IBuiltins
         ...(ctx["Identifier"] ? ctx["Identifier"] : [])
       ].sort((a, b) => ((a.location) ? a.location.startOffset : a.startOffset) - ((b.location) ? b.location.startOffset : b.startOffset));
 
+      const selection = vscode.window.activeTextEditor?.selection.active;
       for (const [i, item] of toProcess.entries()) {
-        const selection = vscode.window.activeTextEditor?.selection.active;
 
         switch (item.name ?? item.tokenType.name ?? item.image) {
           case "varDefine": {
             const varInfo: IVarInitInfo = this.visit(item, scope);
             scope.variables.push(varInfo.variable); 
             const createVar = getBuiltinByName('CreateVariable');
+            createVar.arguments.push({
+              kind: 'raw',
+              id: (varInfo.initializeOnly) ? 1 : 0,
+              value: -1
+            });
             scope.commands.push(createVar);
             if (varInfo.expression) {
               const setVar = getBuiltinByName('SetVariable');
@@ -1012,8 +1019,9 @@ export const customVisitorFactory = (parser: RivalsAIParser, builtins: IBuiltins
           }
         }
 
-        if (i < toProcess.length - 1) {
-          const nextItem = toProcess[i + 1];
+        if (i < toProcess.length) {
+          // @ts-ignore
+          const nextItem = toProcess[i + 1] ?? ctx.RCurly[0];
           if (!nextItem.location) nextItem.location = { startLine: nextItem.startLine, startColumn: nextItem.startColumn, endColumn: nextItem.endColumn }
           if (!item.location) item.location = { startLine: item.startLine, startColumn: item.startColumn, endColumn: item.endColumn }
           
@@ -1023,6 +1031,22 @@ export const customVisitorFactory = (parser: RivalsAIParser, builtins: IBuiltins
             && selection.isAfterOrEqual(new vscode.Position(item.location.startLine - parent.file.startLine - 1, item.location.endColumn))) {
               this.completionItems = [...builtins.cmds, ...builtins.globals, ...this.defines, ...scope.getAllIdents()];
           }
+        }
+      }
+      if (toProcess.length == 0) {
+        // @ts-ignore
+        const item = ctx.LCurly[0];
+        // @ts-ignore
+        const nextItem = ctx.RCurly[0];
+
+        if (!nextItem.location) nextItem.location = { startLine: nextItem.startLine, startColumn: nextItem.startColumn, endColumn: nextItem.endColumn }
+        if (!item.location) item.location = { startLine: item.startLine, startColumn: item.startColumn, endColumn: item.endColumn }
+
+        if (selection
+          && vscode.window.activeTextEditor?.document.uri.fsPath === parent.file.name
+          && selection.isBefore(new vscode.Position(nextItem.location.startLine - parent.file.startLine - 1, nextItem.location.startColumn))
+          && selection.isAfterOrEqual(new vscode.Position(item.location.startLine - parent.file.startLine - 1, item.location.endColumn))) {
+            this.completionItems = [...builtins.cmds, ...builtins.globals, ...this.defines, ...scope.getAllIdents()];
         }
       }
       
